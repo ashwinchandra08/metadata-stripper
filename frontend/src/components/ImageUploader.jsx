@@ -1,7 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { extractMetadata, stripMetadata } from '../services/apiService';
 import MetadataViewer from './MetadataViewer';
 import ErrorMessage from './ErrorMessage';
+import { 
+  saveImageData, 
+  loadImageData, 
+  clearImageData, 
+  fileToStorable, 
+  storableToFile 
+} from '../utils/storageUtils';
 
 const ImageUploader = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -11,7 +18,26 @@ const ImageUploader = () => {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   
-  const handleFileSelect = (event) => {
+  // Load saved image on component mount
+  useEffect(() => {
+    const loadSavedImage = async () => {
+      const savedData = await loadImageData();
+      if (savedData) {
+        const file = storableToFile(savedData.fileData);
+        setSelectedFile(file);
+        setPreviewUrl(savedData.fileData.dataUrl);
+        
+        // Restore metadata if it exists
+        if (savedData.metadata) {
+          setMetadata(savedData.metadata);
+        }
+      }
+    };
+    
+    loadSavedImage();
+  }, []);
+  
+  const handleFileSelect = async (event) => {
     const file = event.target.files[0];
     
     if (!file) return;
@@ -35,8 +61,15 @@ const ImageUploader = () => {
     
     // Create preview
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       setPreviewUrl(reader.result);
+      
+      // Save to IndexedDB
+      const storableFile = await fileToStorable(file);
+      await saveImageData({
+        fileData: storableFile,
+        metadata: null
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -50,6 +83,13 @@ const ImageUploader = () => {
     try {
       const data = await extractMetadata(selectedFile);
       setMetadata(data);
+      
+      // Save metadata along with file
+      const storableFile = await fileToStorable(selectedFile);
+      await saveImageData({
+        fileData: storableFile,
+        metadata: data
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -85,7 +125,7 @@ const ImageUploader = () => {
     }
   };
   
-  const handleReset = () => {
+  const handleReset = async () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setMetadata(null);
@@ -93,6 +133,9 @@ const ImageUploader = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    // Clear from IndexedDB
+    await clearImageData();
   };
   
   return (
