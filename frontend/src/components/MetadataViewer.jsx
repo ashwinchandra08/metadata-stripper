@@ -74,7 +74,8 @@ const MetadataViewer = ({ metadata }) => {
       
       <div className="metadata-summary">
         <div className="metadata-item">
-          <strong>File Name:</strong> {metadata.fileName}
+          <strong>File Name:</strong>
+          <span className="info-value file-name">{metadata.fileName}</span>
         </div>
         <div className="metadata-item">
           <strong>File Size:</strong> {formatFileSize(metadata.fileSize)}

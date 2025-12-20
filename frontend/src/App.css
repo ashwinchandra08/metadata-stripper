@@ -156,6 +156,15 @@ body {
   display: none;
 }
 
+.file-name {
+display: inline-block;
+max-width: 200px; /* adjust as needed */
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+vertical-align: bottom;
+}
+
 .file-label {
   display: flex;
   flex-direction: column;
@@ -409,8 +418,9 @@ body {
 }
 
 .btn-action.btn-secondary {
-  background: #d9e3d9;
+  background: #f2f7f2;
   color: #3e3e3e;
+  border: 1px solid #d9e3d9;
 }
 
 .btn-action.btn-secondary:hover:not(:disabled) {
