@@ -11,7 +11,7 @@ function App() {
       try {
         await checkHealth();
         setApiStatus('connected');
-      } catch {
+      } catch (error) {
         setApiStatus('disconnected');
       }
     };
@@ -36,6 +36,8 @@ function App() {
       </header>
       
       <main className="app-main">
+        <ImageUploader />
+        
         <div className="info-section">
           <h2>Why Remove Metadata?</h2>
           <div className="info-grid">
@@ -56,8 +58,6 @@ function App() {
             </div>
           </div>
         </div>
-        
-        <ImageUploader />
       </main>
       
       <footer className="app-footer">
