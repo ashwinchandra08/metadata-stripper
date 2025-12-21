@@ -29,8 +29,8 @@ function App() {
         <div className={`api-status status-${apiStatus}`}>
           <span className="status-dot"></span>
           <span>
-            API: {apiStatus === 'checking' ? 'Checking...' : 
-                 apiStatus === 'connected' ? 'Connected' : 'Disconnected'}
+            {apiStatus === 'checking' ? 'Checking...' : 
+                 apiStatus === 'connected' ? 'Currently Available' : 'Currently Unavailable'}
           </span>
         </div>
       </header>
