@@ -21,19 +21,24 @@ const ImageUploader = () => {
   // Load saved image on component mount
   useEffect(() => {
     const loadSavedImage = async () => {
-      const savedData = await loadImageData();
-      if (savedData) {
-        const file = storableToFile(savedData.fileData);
-        setSelectedFile(file);
-        setPreviewUrl(savedData.fileData.dataUrl);
-        
-        // Restore metadata if it exists
-        if (savedData.metadata) {
-          setMetadata(savedData.metadata);
+      try {
+        const savedData = await loadImageData();
+        if (savedData) {
+          const file = storableToFile(savedData.fileData);
+          setSelectedFile(file);
+          setPreviewUrl(savedData.fileData.dataUrl);
+
+          // Restore metadata if it exists
+          if (savedData.metadata) {
+            setMetadata(savedData.metadata);
+          }
         }
+      } catch (err) {
+        console.error('Error loading saved image:', err);
+        setError('Failed to load saved image. Please try again.');
       }
     };
-    
+
     loadSavedImage();
   }, []);
   
@@ -65,11 +70,16 @@ const ImageUploader = () => {
       setPreviewUrl(reader.result);
       
       // Save to IndexedDB
-      const storableFile = await fileToStorable(file);
-      await saveImageData({
-        fileData: storableFile,
-        metadata: null
-      });
+      try {
+        const storableFile = await fileToStorable(file);
+        await saveImageData({
+          fileData: storableFile,
+          metadata: null
+        });
+      } catch (err) {
+        console.error('Failed to save image data to IndexedDB:', err);
+        setError('Failed to save the image for automatic reload. You can continue using the app, but the image may not persist on refresh.');
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -135,7 +145,14 @@ const ImageUploader = () => {
     }
     
     // Clear from IndexedDB
-    await clearImageData();
+    try {
+      await clearImageData();
+    } catch (err) {
+      console.error('Failed to clear stored image data from IndexedDB:', err);
+      setError(
+        'The image was removed from the screen, but clearing saved data from your browser storage failed. You can continue, but previous data may still be present.'
+      );
+    }
   };
   
   return (

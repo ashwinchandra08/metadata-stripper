@@ -24,7 +24,10 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         
         // Parse comma-separated origins
-        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        List<String> origins = Arrays.asList(allowedOrigins.split(","))
+            .stream()
+            .map(String::trim)
+            .toList();
         config.setAllowedOrigins(origins);
         
         config.setAllowedHeaders(Arrays.asList("*"));

@@ -26,21 +26,25 @@ const openDB = () => {
 /**
  * Save image data to IndexedDB
  */
+/**
+ * Save image data to IndexedDB
+ */
 export const saveImageData = async (imageData) => {
+  let db;
   try {
-    const db = await openDB();
+    db = await openDB();
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    
+
     await new Promise((resolve, reject) => {
       const request = store.put(imageData, 'currentImage');
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
-    
-    db.close();
   } catch (error) {
     console.error('Error saving image data:', error);
+  } finally {
+    if (db) db.close();
   }
 };
 
@@ -48,22 +52,24 @@ export const saveImageData = async (imageData) => {
  * Load image data from IndexedDB
  */
 export const loadImageData = async () => {
+  let db;
   try {
-    const db = await openDB();
+    db = await openDB();
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
-    
+
     const imageData = await new Promise((resolve, reject) => {
       const request = store.get('currentImage');
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
-    
-    db.close();
+
     return imageData;
   } catch (error) {
     console.error('Error loading image data:', error);
     return null;
+  } finally {
+    if (db) db.close();
   }
 };
 
@@ -71,20 +77,21 @@ export const loadImageData = async () => {
  * Clear image data from IndexedDB
  */
 export const clearImageData = async () => {
+  let db;
   try {
-    const db = await openDB();
+    db = await openDB();
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    
+
     await new Promise((resolve, reject) => {
       const request = store.delete('currentImage');
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
-    
-    db.close();
   } catch (error) {
     console.error('Error clearing image data:', error);
+  } finally {
+    if (db) db.close();
   }
 };
 
@@ -112,11 +119,20 @@ export const fileToStorable = async (file) => {
  * Convert storable format back to File
  */
 export const storableToFile = (storable) => {
-  if (!storable) return null;
+  if (!storable || typeof storable.dataUrl !== 'string') return null;
   
   // Convert data URL to blob
   const arr = storable.dataUrl.split(',');
-  const mime = arr[0].match(/:(.*?);/)[1];
+  if (arr.length < 2) {
+    console.error('Invalid dataUrl format in storable object');
+    return null;
+  }
+  const mimeMatch = arr[0].match(/:(.*?);/);
+  if (!mimeMatch || !mimeMatch[1]) {
+    console.error('Unable to extract MIME type from dataUrl');
+    return null;
+  }
+  const mime = mimeMatch[1];
   const bstr = atob(arr[1]);
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
