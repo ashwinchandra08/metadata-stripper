@@ -215,7 +215,7 @@ const ImageUploader = () => {
               <div className="actions-container">
                 <h4>What would you like to do?</h4>
                 
-                <div className="action-card" onClick={handleViewMetadata}>
+                <div className="action-card">
                   <div className="action-icon">🔍</div>
                   <div className="action-content">
                     <h5>View Metadata</h5>
@@ -230,7 +230,7 @@ const ImageUploader = () => {
                   </button>
                 </div>
                 
-                <div className="action-card" onClick={handleStripMetadata}>
+                <div className="action-card">
                   <div className="action-icon">🗑️</div>
                   <div className="action-content">
                     <h5>Strip & Download</h5>
@@ -245,7 +245,7 @@ const ImageUploader = () => {
                   </button>
                 </div>
                 
-                <div className="action-card" onClick={handleReset}>
+                <div className="action-card">
                   <div className="action-icon">🔄</div>
                   <div className="action-content">
                     <h5>Choose Another</h5>
