@@ -16,37 +16,55 @@ const ImageUploader = () => {
   const [metadata, setMetadata] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [processingStep, setProcessingStep] = useState('idle'); // idle, viewing, stripping
   const fileInputRef = useRef(null);
   
   // Load saved image on component mount
   useEffect(() => {
     const loadSavedImage = async () => {
-      try {
-        const savedData = await loadImageData();
-        if (savedData) {
-          const file = storableToFile(savedData.fileData);
-          setSelectedFile(file);
-          setPreviewUrl(savedData.fileData.dataUrl);
-
-          // Restore metadata if it exists
-          if (savedData.metadata) {
-            setMetadata(savedData.metadata);
-          }
+      const savedData = await loadImageData();
+      if (savedData) {
+        const file = storableToFile(savedData.fileData);
+        setSelectedFile(file);
+        setPreviewUrl(savedData.fileData.dataUrl);
+        
+        if (savedData.metadata) {
+          setMetadata(savedData.metadata);
         }
-      } catch (err) {
-        console.error('Error loading saved image:', err);
-        setError('Failed to load saved image. Please try again.');
       }
     };
-
+    
     loadSavedImage();
   }, []);
   
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+  
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      await handleFileUpload(e.dataTransfer.files[0]);
+    }
+  };
+  
   const handleFileSelect = async (event) => {
-    const file = event.target.files[0];
-    
-    if (!file) return;
-    
+    if (event.target.files && event.target.files[0]) {
+      await handleFileUpload(event.target.files[0]);
+    }
+  };
+  
+  const handleFileUpload = async (file) => {
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
     if (!validTypes.includes(file.type)) {
@@ -63,6 +81,7 @@ const ImageUploader = () => {
     setSelectedFile(file);
     setMetadata(null);
     setError(null);
+    setProcessingStep('idle');
     
     // Create preview
     const reader = new FileReader();
@@ -70,16 +89,11 @@ const ImageUploader = () => {
       setPreviewUrl(reader.result);
       
       // Save to IndexedDB
-      try {
-        const storableFile = await fileToStorable(file);
-        await saveImageData({
-          fileData: storableFile,
-          metadata: null
-        });
-      } catch (err) {
-        console.error('Failed to save image data to IndexedDB:', err);
-        setError('Failed to save the image for automatic reload. You can continue using the app, but the image may not persist on refresh.');
-      }
+      const storableFile = await fileToStorable(file);
+      await saveImageData({
+        fileData: storableFile,
+        metadata: null
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -89,6 +103,7 @@ const ImageUploader = () => {
     
     setLoading(true);
     setError(null);
+    setProcessingStep('viewing');
     
     try {
       const data = await extractMetadata(selectedFile);
@@ -102,6 +117,7 @@ const ImageUploader = () => {
       });
     } catch (err) {
       setError(err.message);
+      setProcessingStep('idle');
     } finally {
       setLoading(false);
     }
@@ -112,6 +128,7 @@ const ImageUploader = () => {
     
     setLoading(true);
     setError(null);
+    setProcessingStep('stripping');
     
     try {
       const cleanedBlob = await stripMetadata(selectedFile);
@@ -127,9 +144,10 @@ const ImageUploader = () => {
       window.URL.revokeObjectURL(url);
       
       setError(null);
-      alert('Metadata stripped successfully! File downloaded.');
+      setProcessingStep('idle');
     } catch (err) {
       setError(err.message);
+      setProcessingStep('idle');
     } finally {
       setLoading(false);
     }
@@ -140,132 +158,131 @@ const ImageUploader = () => {
     setPreviewUrl(null);
     setMetadata(null);
     setError(null);
+    setProcessingStep('idle');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     
-    // Clear from IndexedDB
-    try {
-      await clearImageData();
-    } catch (err) {
-      console.error('Failed to clear stored image data from IndexedDB:', err);
-      setError(
-        'The image was removed from the screen, but clearing saved data from your browser storage failed. You can continue, but previous data may still be present.'
-      );
-    }
+    await clearImageData();
+  };
+  
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' bytes';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
   
   return (
-    <div className="image-uploader">
+    <div className="image-uploader-redesigned">
       <ErrorMessage message={error} onClose={() => setError(null)} />
       
-      {!selectedFile ? (
-        <div className="upload-section">
-          <div className="upload-area">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp"
-              className="file-input"
-              id="file-input"
-            />
-            <label htmlFor="file-input" className="file-label">
-              <span className="upload-icon">📁</span>
-              <span className="upload-text">Choose an image file</span>
-              <span className="upload-hint">
-                Supported: JPG, PNG, GIF, BMP (Max 10MB)
-              </span>
-            </label>
-          </div>
+      {/* Main Upload Area */}
+      <div className="upload-container">
+        <div 
+          className={`drop-zone ${dragActive ? 'drag-active' : ''} ${selectedFile ? 'has-file' : ''}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          {!selectedFile ? (
+            <>
+              <div className="cloud-icon">
+                <span className="folder-emoji">📁</span>
+              </div>
+                            
+              <div className="upload-text">
+                <h3>Drop files here or click to upload</h3>
+                <p className="upload-hint">Supported formats: JPG, PNG, GIF, BMP (Max 10MB)</p>
+              </div>
+              
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp"
+                className="file-input-hidden"
+                id="file-input"
+              />
+              
+              <label htmlFor="file-input" className="choose-file-btn">
+                Choose file
+                <span className="dropdown-arrow">▼</span>
+              </label>
+            </>
+          ) : (
+            <div className="file-preview-card">
+              <div className="file-preview-header">
+                <div className="file-info-left">
+                  <div className="file-thumbnail">
+                    <img src={previewUrl} alt="Preview" />
+                  </div>
+                  <div className="file-details">
+                    <h4>{selectedFile.name}</h4>
+                  </div>
+                </div>
+                <button onClick={handleReset} className="remove-file-btn" title="Remove file">
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+        
+        {/* Action Buttons */}
+        {selectedFile && (
+  <div className="action-buttons-row">
+    <button
+      onClick={handleViewMetadata}
+      disabled={loading}
+      className={`action-btn ${processingStep === 'viewing' ? 'active' : ''}`}
+    >
+      {loading && processingStep === 'viewing' ? (
+        <>
+          <span className="spinner"></span>
+          Analyzing...
+        </>
       ) : (
-        <div className="image-preview-section">
-          <div className="preview-header">
-            <h3>Selected Image</h3>
-            <button onClick={handleReset} className="btn-close" title="Remove image">
-              ✕
-            </button>
-          </div>
-          
-          <div className="preview-container">
-            <div className="preview-left">
-              <div className="image-thumbnail">
-                <img src={previewUrl} alt="Preview" />
-              </div>
-              <div className="image-info">
-                <div className="info-row">
-                  <span className="info-label">📄 File:</span>
-                  <span className="info-value">{selectedFile.name}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">📦 Size:</span>
-                  <span className="info-value">
-                    {(selectedFile.size / 1024).toFixed(2)} KB
-                  </span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">🎨 Type:</span>
-                  <span className="info-value">{selectedFile.type}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="preview-right">
-              <div className="actions-container">
-                <h4>What would you like to do?</h4>
-                
-                <div className="action-card">
-                  <div className="action-icon">🔍</div>
-                  <div className="action-content">
-                    <h5>View Metadata</h5>
-                    <p>See what information is embedded in your image</p>
-                  </div>
-                  <button
-                    onClick={handleViewMetadata}
-                    disabled={loading}
-                    className="btn btn-action"
-                  >
-                    {loading ? 'Loading...' : 'View'}
-                  </button>
-                </div>
-                
-                <div className="action-card">
-                  <div className="action-icon">🗑️</div>
-                  <div className="action-content">
-                    <h5>Strip & Download</h5>
-                    <p>Remove all metadata and download clean image</p>
-                  </div>
-                  <button
-                    onClick={handleStripMetadata}
-                    disabled={loading}
-                    className="btn btn-action btn-primary"
-                  >
-                    {loading ? 'Processing...' : 'Strip'}
-                  </button>
-                </div>
-                
-                <div className="action-card">
-                  <div className="action-icon">🔄</div>
-                  <div className="action-content">
-                    <h5>Choose Another</h5>
-                    <p>Select a different image to process</p>
-                  </div>
-                  <button
-                    onClick={handleReset}
-                    disabled={loading}
-                    className="btn btn-action btn-secondary"
-                  >
-                    Change
-                  </button>
-                </div>
-              </div>
-            </div>
+        <div className="btn-content">
+          <span className="btn-icon">🔍</span>
+          <div className="btn-text">
+            <div className="btn-label">View Metadata</div>
+            <div className="btn-desc">See what information is embedded in your image</div>
           </div>
         </div>
       )}
+    </button>
+    
+    <button
+      onClick={handleStripMetadata}
+      disabled={loading}
+      className={`action-btn ${processingStep === 'stripping' ? 'active' : ''}`}
+    >
+      {loading && processingStep === 'stripping' ? (
+        <>
+          <span className="spinner"></span>
+          Analyzing...
+        </>
+      ) : (
+        <div className="btn-content">
+          <span className="btn-icon">🧹</span>
+          <div className="btn-text">
+            <div className="btn-label">Strip & Download</div>
+            <div className="btn-desc">Remove all metadata and download clean image</div>
+          </div>
+        </div>
+      )}
+    </button>
+    
+    <button className="add-sample-btn" onClick={handleReset}>
+      + ADD ANOTHER FILE
+    </button>
+  </div>
+)}
+      </div>
       
-      <MetadataViewer metadata={metadata} />
+      {/* Metadata Viewer */}
+      {metadata && <MetadataViewer metadata={metadata} />}
     </div>
   );
 };
