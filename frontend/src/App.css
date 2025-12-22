@@ -59,6 +59,19 @@ body {
   height: 24px;
 }
 
+.logo-image-wrapper {
+  display: flex;
+  align-items: center;
+  height: 50px;
+}
+
+.logo-image {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  max-width: 280px;
+}
+
 .brand-name h1 {
   font-size: 20px;
   font-weight: 600;
@@ -286,6 +299,11 @@ vertical-align: bottom;
   align-items: center;
   justify-content: center;
   padding: 70px 40px;
+}
+
+.folder-emoji {
+  font-size: 80px;
+  line-height: 1;
 }
 
 .choose-file-btn {

@@ -188,12 +188,9 @@ const ImageUploader = () => {
           {!selectedFile ? (
             <>
               <div className="cloud-icon">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M7 16.5L12 11.5L17 16.5M12 12V22" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16.8828 20C18.2373 19.3313 19.2987 18.1506 19.8294 16.7032C20.3602 15.2558 20.3208 13.6576 19.7193 12.238C19.1177 10.8184 17.9998 9.68553 16.6005 9.07636C15.2012 8.46719 13.6223 8.4253 12.1924 8.95738M7 16.5H6.5C5.17392 16.5 3.90215 15.9732 2.96447 15.0355C2.02678 14.0979 1.5 12.8261 1.5 11.5C1.5 10.1739 2.02678 8.90215 2.96447 7.96447C3.90215 7.02678 5.17392 6.5 6.5 6.5C6.5 5.17392 7.02678 3.90215 7.96447 2.96447C8.90215 2.02678 10.1739 1.5 11.5 1.5C12.8261 1.5 14.0979 2.02678 15.0355 2.96447C15.9732 3.90215 16.5 5.17392 16.5 6.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <span className="folder-emoji">📁</span>
               </div>
-              
+                            
               <div className="upload-text">
                 <h3>Drop files here or click to upload</h3>
                 <p className="upload-hint">Supported formats: JPG, PNG, GIF, BMP (Max 10MB)</p>
@@ -209,7 +206,6 @@ const ImageUploader = () => {
               />
               
               <label htmlFor="file-input" className="choose-file-btn">
-                <span className="btn-icon">📁</span>
                 Choose file
                 <span className="dropdown-arrow">▼</span>
               </label>

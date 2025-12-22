@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ImageUploader from './components/ImageUploader';
+import Privacy from './components/Privacy';
 import { checkHealth } from './services/apiService';
 import './App.css';
 
@@ -20,20 +22,16 @@ function App() {
   }, []);
   
   return (
+  <Router>
+    <Routes>
+      <Route path="/" element={
     <div className="app-redesigned">
       {/* Header */}
       <header className="app-header-redesigned">
         <div className="header-container">
           <div className="logo-section">
-            <div className="logo">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <path d="M9 9h6v6H9z"/>
-                <path d="M9 1v4M15 1v4M9 19v4M15 19v4M19 9h4M19 15h4M1 9h4M1 15h4"/>
-              </svg>
-            </div>
-            <div className="brand-name">
-              <h1>METADATA STRIPPER</h1>
+             <div className="logo-image-wrapper">
+              <img src="/logo.png" alt="Metadata Stripper" className="logo-image" />
             </div>
           </div>
           
@@ -48,9 +46,9 @@ function App() {
          }
 
             <div className="header-actions">
-              <button className="icon-btn" title="Help">
+              <Link to="/about" className="icon-btn" title="Privacy Policy">
                 <span>?</span>
-              </button>
+              </Link>
               <button className="icon-btn" title="Language">
                 <span>🌐</span>
                 EN
@@ -66,7 +64,7 @@ function App() {
       <main className="app-main-redesigned">
         <div className="content-wrapper">
           <div className="page-title">
-            <h2>Metadata Remover</h2>
+            <h2>Remove Image Metadata</h2>
             <p className="page-subtitle">One-click EXIF metadata remover for safer file sharing.</p>
           </div>
           
@@ -101,6 +99,10 @@ function App() {
         <p>Your images are processed securely. No data is stored on our servers.</p>
       </footer>
     </div>
+      } />
+      <Route path="/about" element={<Privacy />} />
+      </Routes>
+    </Router>
   );
 }
 
