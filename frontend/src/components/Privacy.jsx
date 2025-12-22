@@ -99,7 +99,7 @@ const Privacy = () => {
 
         <section className="privacy-section">
           <h2>Changes to This Policy</h2>
-          <p>We will update this document if our data handling practices change. Check the git commit history for modifications.</p>
+          <p>We will update this document if our data handling practices change.</p>
         </section>
 
         <hr className="divider" />
