@@ -915,6 +915,43 @@ vertical-align: bottom;
   margin: 0;
 }
 
+/* Add these to your App.css */
+
+/* Rate Limit Warnings */
+.rate-limit-warning {
+  padding: 12px 20px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.rate-limit-blocked {
+  padding: 12px 20px;
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-container {
