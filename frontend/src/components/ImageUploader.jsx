@@ -9,6 +9,8 @@ import {
   fileToStorable, 
   storableToFile 
 } from '../utils/storageUtils';
+import { metadataRateLimiter, stripRateLimiter, checkRateLimit } from '../utils/rateLimitUtils';
+
 
 const ImageUploader = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -18,8 +20,20 @@ const ImageUploader = () => {
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [processingStep, setProcessingStep] = useState('idle'); // idle, viewing, stripping
+  const [rateLimitInfo, setRateLimitInfo] = useState({ remaining: 10, retryAfter: 0 });
   const fileInputRef = useRef(null);
   
+    // Update rate limit info every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const remaining = metadataRateLimiter.getRemainingRequests();
+      const retryAfter = metadataRateLimiter.getRetryAfter();
+      setRateLimitInfo({ remaining, retryAfter });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Load saved image on component mount
   useEffect(() => {
     const loadSavedImage = async () => {
@@ -100,6 +114,14 @@ const ImageUploader = () => {
   
   const handleViewMetadata = async () => {
     if (!selectedFile) return;
+
+    // Check rate limit
+    try {
+      checkRateLimit(metadataRateLimiter, 'metadata view');
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
     
     setLoading(true);
     setError(null);
@@ -116,7 +138,11 @@ const ImageUploader = () => {
         metadata: data
       });
     } catch (err) {
-      setError(err.message);
+      if (err.message.includes('Too many requests') || err.message.includes('429')) {
+        setError('Rate limit exceeded. Please wait a moment before trying again.');
+      } else {
+        setError(err.message);
+      }
       setProcessingStep('idle');
     } finally {
       setLoading(false);
@@ -125,6 +151,15 @@ const ImageUploader = () => {
   
   const handleStripMetadata = async () => {
     if (!selectedFile) return;
+
+        // Check rate limit (stricter for strip operations)
+    try {
+      checkRateLimit(stripRateLimiter, 'strip');
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
+    
     
     setLoading(true);
     setError(null);
@@ -146,7 +181,12 @@ const ImageUploader = () => {
       setError(null);
       setProcessingStep('idle');
     } catch (err) {
-      setError(err.message);
+      // Check if it's a 429 (rate limit) error
+      if (err.message.includes('Too many requests') || err.message.includes('429')) {
+        setError('Rate limit exceeded. Please wait a moment before trying again.');
+      } else {
+        setError(err.message);
+      }
       setProcessingStep('idle');
     } finally {
       setLoading(false);
@@ -175,6 +215,12 @@ const ImageUploader = () => {
   return (
     <div className="image-uploader-redesigned">
       <ErrorMessage message={error} onClose={() => setError(null)} />
+
+      {rateLimitInfo.remaining <= 0 && rateLimitInfo.retryAfter > 0 && (
+        <div className="rate-limit-blocked">
+          🚫 Rate limit reached. Please wait {rateLimitInfo.retryAfter} seconds
+        </div>
+      )}
       
       {/* Main Upload Area */}
       <div className="upload-container">
@@ -234,7 +280,7 @@ const ImageUploader = () => {
   <div className="action-buttons-row">
     <button
       onClick={handleViewMetadata}
-      disabled={loading}
+      disabled={loading || rateLimitInfo.remaining <= 0}
       className={`action-btn ${processingStep === 'viewing' ? 'active' : ''}`}
     >
       {loading && processingStep === 'viewing' ? (
@@ -255,7 +301,7 @@ const ImageUploader = () => {
     
     <button
       onClick={handleStripMetadata}
-      disabled={loading}
+      disabled={loading || rateLimitInfo.remaining <= 0}
       className={`action-btn ${processingStep === 'stripping' ? 'active' : ''}`}
     >
       {loading && processingStep === 'stripping' ? (
