@@ -253,7 +253,6 @@ const ImageUploader = () => {
               
               <label htmlFor="file-input" className="choose-file-btn">
                 Choose file
-                <span className="dropdown-arrow">▼</span>
               </label>
             </>
           ) : (
