@@ -27,7 +27,6 @@ class RateLimiter {
       return false;
     }
     this.requests.push(now);
-    console.log(`[RateLimiter] Request allowed. New count: ${this.requests.length}`);
     return true;
   }
 
