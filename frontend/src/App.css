@@ -23,8 +23,6 @@ body {
 .app-header-redesigned {
   background: #fff;
   border-bottom: 1px solid #e0e0e0;
-  position: sticky;
-  top: 0;
   z-index: 100;
 }
 
@@ -44,8 +42,8 @@ body {
 }
 
 .logo {
-  width: 40px;
-  height: 40px;
+  width: 80px;
+  height: 80px;
   background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
   border-radius: 8px;
   display: flex;
@@ -69,7 +67,7 @@ body {
   height: 100%;
   width: auto;
   object-fit: contain;
-  max-width: 280px;
+  max-width: 480px;
 }
 
 .brand-name h1 {
@@ -143,6 +141,7 @@ body {
   transition: all 0.2s;
   padding: 0 10px;
   gap: 6px;
+  text-decoration: none;
 }
 
 .icon-btn:hover {
@@ -497,6 +496,11 @@ vertical-align: bottom;
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.rotate-icon {
+  display: inline-block;
+  font-size: 16px;
 }
 
 .add-sample-btn {

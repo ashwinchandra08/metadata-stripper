@@ -31,7 +31,7 @@ function App() {
         <div className="header-container">
           <div className="logo-section">
              <div className="logo-image-wrapper">
-              <img src="/logo.png" alt="Metadata Stripper" className="logo-image" />
+              <img src="/logo_2.png" alt="Metadata Stripper" className="logo-image" />
             </div>
           </div>
           
@@ -47,7 +47,7 @@ function App() {
 
             <div className="header-actions">
               <Link to="/about" className="icon-btn" title="Privacy Policy">
-                <span>?</span>
+                <span>🛡️  </span>
               </Link>
               <button className="icon-btn" title="Language">
                 <span>🌐</span>

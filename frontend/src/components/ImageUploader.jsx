@@ -275,7 +275,7 @@ const ImageUploader = () => {
     </button>
     
     <button className="add-sample-btn" onClick={handleReset}>
-      + ADD ANOTHER FILE
+       <span className="rotate-icon">↻</span> CHOOSE ANOTHER
     </button>
   </div>
 )}
