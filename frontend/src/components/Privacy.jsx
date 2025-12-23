@@ -48,7 +48,7 @@ const Privacy = () => {
             <li>Tracking cookies or persistent identifiers;</li>
             <li>Analytics data pertaining to image content or characteristics;</li>
             <li>User account information or authentication credentials;</li>
-            <li>IP addresses or network identifiers associated with image processing requests.</li>
+            <li>IP addresses or network identifiers associated with image processing requests, except that IP addresses may be temporarily processed solely to implement rate limiting; such IP data is not retained or logged.</li>
           </ul>
         </section>
 
