@@ -10,6 +10,10 @@ import {
   storableToFile 
 } from '../utils/storageUtils';
 import { metadataRateLimiter, stripRateLimiter, checkRateLimit } from '../utils/rateLimitUtils';
+import { FcFolder } from "react-icons/fc";
+import { MdImageSearch } from "react-icons/md";
+import { BiSolidEraser } from "react-icons/bi";
+
 
 
 const ImageUploader = () => {
@@ -234,7 +238,7 @@ const ImageUploader = () => {
           {!selectedFile ? (
             <>
               <div className="cloud-icon">
-                <span className="folder-emoji">📁</span>
+                  <FcFolder className="folder-emoji" size="2.2em" />
               </div>
                             
               <div className="upload-text">
@@ -289,7 +293,7 @@ const ImageUploader = () => {
         </>
       ) : (
         <div className="btn-content">
-          <span className="btn-icon">🔍</span>
+          <MdImageSearch className="btn-icon" size="1.5em" />
           <div className="btn-text">
             <div className="btn-label">View Metadata</div>
             <div className="btn-desc">See what information is embedded in your image</div>
@@ -310,7 +314,7 @@ const ImageUploader = () => {
         </>
       ) : (
         <div className="btn-content">
-          <span className="btn-icon">🧹</span>
+          <BiSolidEraser className="btn-icon" size="1.5em" />
           <div className="btn-text">
             <div className="btn-label">Strip & Download</div>
             <div className="btn-desc">Remove all metadata and download clean image</div>

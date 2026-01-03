@@ -39,6 +39,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-start;
 }
 
 .logo {
@@ -128,6 +129,8 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-end;
+  min-width: 220px;
 }
 
 .icon-btn {
@@ -824,7 +827,7 @@ vertical-align: bottom;
 }
 
 .info-icon-redesigned {
-  font-size: 40px;
+  font-size: 45px;
   margin-bottom: 16px;
 }
 
