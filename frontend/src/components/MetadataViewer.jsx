@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { CiLocationOn, CiImageOn } from "react-icons/ci";
+import { FaCalendarAlt, FaCameraRetro } from "react-icons/fa";
+import { IoDocumentTextOutline } from "react-icons/io5";
 
 const MetadataViewer = ({ metadata }) => {
   const [expandedGroups, setExpandedGroups] = useState({
@@ -25,14 +28,20 @@ const MetadataViewer = ({ metadata }) => {
   };
   
   const getGroupIcon = (groupKey) => {
-    const icons = {
-      camera: '📷',
-      location: '📍',
-      dateTime: '📅',
-      image: '🖼️',
-      other: '📋'
-    };
-    return icons[groupKey] || '📋';
+    switch (groupKey) {
+      case 'camera':
+        return <FaCameraRetro className="group-icon" size="1.2em" />;
+      case 'location':
+        return <CiLocationOn className="group-icon" size="1.2em" />;
+      case 'dateTime':
+        return <FaCalendarAlt className="group-icon" size="1.2em" />;
+      case 'image':
+        return <CiImageOn className="group-icon" size="1.3em" />;
+      case 'other':
+        return <IoDocumentTextOutline className="group-icon" size="1.3em" />;
+      default:
+        return <IoDocumentTextOutline className="group-icon" size="1.3em" />;
+    }
   };
   
   const renderMetadataGroup = (group, groupKey) => {
@@ -45,7 +54,7 @@ const MetadataViewer = ({ metadata }) => {
           onClick={() => toggleGroup(groupKey)}
         >
           <div className="group-title">
-            <span className="group-icon">{getGroupIcon(groupKey)}</span>
+            {getGroupIcon(groupKey)}
             <span className="group-name">{group.groupName}</span>
             <span className="group-count">({Object.keys(group.data).length} items)</span>
           </div>

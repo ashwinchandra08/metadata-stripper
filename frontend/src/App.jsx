@@ -4,6 +4,9 @@ import ImageUploader from './components/ImageUploader';
 import Privacy from './components/Privacy';
 import { checkHealth } from './services/apiService';
 import './App.css';
+import { MdPrivacyTip, MdOutlineLanguage} from "react-icons/md";
+import { CiLocationOn } from "react-icons/ci";
+import { FaCalendarAlt, FaCameraRetro } from "react-icons/fa";
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
@@ -46,11 +49,11 @@ function App() {
          }
 
             <div className="header-actions">
-              <Link to="/about" className="icon-btn" title="Privacy Policy">
-                <span>🛡️  </span>
+              <Link to="/about" className="icon-btn" title="Privacy Policy" aria-label="Privacy">
+                <MdPrivacyTip/>
               </Link>
-              <button className="icon-btn" title="Language">
-                <span>🌐</span>
+              <button className="icon-btn" title="Language" aria-label="Language">
+                <MdOutlineLanguage />
                 EN
               </button>
               <div className={`status-indicator ${apiStatus}`} title={`API Status: ${apiStatus}`}>
@@ -64,7 +67,7 @@ function App() {
       <main className="app-main-redesigned">
         <div className="content-wrapper">
           <div className="page-title">
-            <h2>Remove Image Metadata</h2>
+            <h2>Erase Image Metadata</h2>
             <p className="page-subtitle">One-click EXIF metadata remover for safer file sharing.</p>
           </div>
           
@@ -75,17 +78,17 @@ function App() {
             <h3>Why Remove Metadata?</h3>
             <div className="info-grid-redesigned">
               <div className="info-card-redesigned">
-                <div className="info-icon-redesigned">📍</div>
+                <CiLocationOn className="info-icon-redesigned" color="#6b9d6f"/>
                 <h4>Location Privacy</h4>
                 <p>Photos contain GPS coordinates revealing exactly where they were taken</p>
               </div>
               <div className="info-card-redesigned">
-                <div className="info-icon-redesigned">📅</div>
+                <FaCalendarAlt className="info-icon-redesigned" color="#6b9d6f"/>
                 <h4>Timestamp Information</h4>
                 <p>Date and time stamps can reveal when and where you were</p>
               </div>
               <div className="info-card-redesigned">
-                <div className="info-icon-redesigned">📷</div>
+                <FaCameraRetro className="info-icon-redesigned" color="#6b9d6f"/>
                 <h4>Device Details</h4>
                 <p>Camera model, settings, and software information can be extracted</p>
               </div>
