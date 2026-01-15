@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { extractMetadata, stripMetadata } from '../services/apiService';
 import MetadataViewer from './MetadataViewer';
 import ErrorMessage from './ErrorMessage';
+import CloudStoragePicker from './CloudStoragePicker';
 import { 
   saveImageData, 
   loadImageData, 
@@ -276,6 +277,11 @@ const ImageUploader = () => {
               </div>
             </div>
           )}
+          
+          <CloudStoragePicker 
+            onFileSelect={handleFileUpload} 
+            onError={setError}
+          />
         </div>
         
         {/* Action Buttons */}
