@@ -49,7 +49,7 @@ function App() {
          }
 
             <div className="header-actions">
-              <Link to="/about" className="icon-btn" title="Privacy Policy" aria-label="Privacy">
+              <Link to="/privacyPolicy" className="icon-btn" title="Privacy Policy" aria-label="Privacy">
                 <MdPrivacyTip/>
               </Link>
               <button className="icon-btn" title="Language" aria-label="Language">
@@ -103,7 +103,7 @@ function App() {
       </footer>
     </div>
       } />
-      <Route path="/about" element={<Privacy />} />
+      <Route path="/privacyPolicy" element={<Privacy />} />
       </Routes>
     </Router>
   );
